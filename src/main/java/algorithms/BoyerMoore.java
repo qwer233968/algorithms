@@ -1,4 +1,4 @@
-package cn.mq.util.algorithms;
+package algorithms;
 
 public class BoyerMoore {
 

@@ -6,11 +6,10 @@ import java.util.Queue;
 
 /**
  * 广度优先搜索算法
- * 不适用 有负权环路的图
  */
 public class BFSShortPath {
     /**
-     * 权重图的 数组表示法
+     * 带权重有向图的 数组表示法
      */
     static int[][] weight = {
             {0, 10, 0, 0, 8, 0},

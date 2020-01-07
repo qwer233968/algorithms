@@ -23,9 +23,9 @@ public class NQueens {
 
     /**
      * 判断皇后周围是否有其他皇后
-     * @param row
-     * @param col
-     * @param targetQueen
+     * @param row 行
+     * @param col 列
+     * @param targetQueen 需要查询的皇后
      * @return
      */
     static boolean valideQueen(int row, int col, int targetQueen){

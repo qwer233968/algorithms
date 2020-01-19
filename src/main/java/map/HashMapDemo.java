@@ -542,9 +542,22 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
                         do {
                             next = e.next;
                             /**
-                             * 我们计算节点再map数组中的位置方式是 (n - 1) & hash
-                             *  牢记a % b == (b-1) & a ,当b是2的指数时，等式成立。
+                             * ，那么该于元素的下标位置也就不变。
+                             * 假设 --
+                             *      map原大小=16 现扩充到32
+                             *      hash = ‭001101100100010010100100‬
+                             *      16 = 10000   15 = 1111
+                             *      32 = 100000  31 = 11111
                              *
+                             *      ‭001101100100010010100100‬
+                             *                         10000
+                             * 可以看到当旧的hash值 与运算 10000，结果是0的话，那么hash值的右起第五位肯定也是0
+                             * 相对应的 我们计算数组下标的方法 (n-1) & hash
+                             * ‭001101100100010010100100‬
+                             *                     1111 = 15
+                             *                    11111 = 31
+                             *  最终结果都是 4
+                             *  所以当确定了右起第五位肯定也是0的情况下，扩充容量后  下标肯定不变
                              */
                             if ((e.hash & oldCap) == 0) {
                                 if (loTail == null)
@@ -554,6 +567,7 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
                                 loTail = e;
                             }
                             else {
+                                //// 如果不是0，那么就是1，也就是说，如果原始容量是16，那么该元素新的下标就是：原下标 + 16（10000b）
                                 if (hiTail == null)
                                     hiHead = e;
                                 else

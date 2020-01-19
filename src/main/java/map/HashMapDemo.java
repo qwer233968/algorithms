@@ -94,8 +94,8 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
 
     /**
      * 对象Object的hashCode 访问本地方法C++返回内存地址
-     * String的hashCode 字符串的每一个字符循环乘以31再累加自身 得到hash值
-     * JVM会对数值计算做优化，比如 a * 31 == (a << 5) -a 在高并发下左移运算比乘法快很多
+     * String的hashCode 以31为权，每一位为字符的ASCII值进行运算，用自然溢出来等效取模
+     * 因为31是一个奇质数，所以31*i=32*i-i=(i<<5)-i，这种位移与减法结合的计算相比一般的运算快很多
      *
      * hashCode 值右移 16 位，也就是取 int 类型的一半，刚好将该二进制数对半切开。
      * 并且使用位异或运算（如果两个数对应的位置相反，则结果为1，反之为0）
@@ -141,7 +141,9 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
     }
 
     /**
-     * Returns a power of two size for the given target capacity.
+     * 通过位移运算和或运算，最后得到一定是 2 的幂次方
+     * 或运算，第一个操作数的的第 n 位于第二个操作数的第 n 位 只要有一个是1，那么结果的第 n 为也为 1，否则为 0
+     * 并且是大于初始化容量最近的数字
      */
     static final int tableSizeFor(int cap) {
         int n = cap - 1;
@@ -150,6 +152,18 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
         n |= n >>> 4;
         n |= n >>> 8;
         n |= n >>> 16;
+        //无论参数是多少，结果一定是1111...111。所以n+1 必然是2的幂次方
+        /**
+         * cap = 133   n = 132
+         * 132 = 10000100‬
+         * 10000100‬ | ‭01000010‬ = 11000110
+         * 11000110 | 00110001 = 11110111
+         * 11110111 | 00001111 = 11111111
+         * 11111111 | 00000000 = 11111111
+         * 11111111 | 00000000 = 11111111
+         * 11111111 = 255
+         * n+1 = 256  刚好就是距离 133 最近的并且没有变小的 2 的幂次方数
+         */
         return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
     }
 
@@ -184,7 +198,8 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
     transient int modCount;
 
     /**
-     * The next size value at which to resize (capacity * load factor).
+     * 阀值
+     * 扩充容量的判断依据 当前容量 * 加载因子
      *
      * @serial
      */
@@ -195,8 +210,7 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
     int threshold;
 
     /**
-     * The load factor for the hash table.
-     *
+     * 加载因子
      * @serial
      */
     final float loadFactor;
@@ -204,13 +218,8 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
     /* ---------------- Public operations -------------- */
 
     /**
-     * Constructs an empty <tt>HashMap</tt> with the specified initial
-     * capacity and load factor.
-     *
-     * @param  initialCapacity the initial capacity
-     * @param  loadFactor      the load factor
-     * @throws IllegalArgumentException if the initial capacity is negative
-     *         or the load factor is nonpositive
+     * @param  initialCapacity 初始容量
+     * @param  loadFactor      加载因子
      */
     public HashMapDemo(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0)
@@ -222,6 +231,7 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
             throw new IllegalArgumentException("Illegal load factor: " +
                     loadFactor);
         this.loadFactor = loadFactor;
+        //计算阀值
         this.threshold = tableSizeFor(initialCapacity);
     }
 
@@ -459,12 +469,11 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
     }
 
     /**
-     * Initializes or doubles table size.  If null, allocates in
-     * accord with initial capacity target held in field threshold.
-     * Otherwise, because we are using power-of-two expansion, the
-     * elements from each bin must either stay at same index, or move
-     * with a power of two offset in the new table.
-     *
+     * 初始化 或者 增加1倍map大小
+     * oldCap 旧map大小
+     * newCap 新map大小
+     * newThr 新阈值
+     * oldThr 旧阈值
      * @return the table
      */
     final NodeDemo<K,V>[] resize() {
@@ -472,7 +481,17 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
         int oldCap = (oldTab == null) ? 0 : oldTab.length;
         int oldThr = threshold;
         int newCap, newThr = 0;
+        //判断map是否已存在
         if (oldCap > 0) {
+            /**
+             * if
+             *      MAXIMUM_CAPACITY = int最大值得一半
+             *      map 最大值，如果大于该值，则禁止扩大并禁止重新散列
+             *
+             * else
+             *      如果 map 扩大一倍，小于 MAXIMUM_CAPACITY 并且 原先map大小>= 16
+             *      则扩大阈值一倍
+             */
             if (oldCap >= MAXIMUM_CAPACITY) {
                 threshold = Integer.MAX_VALUE;
                 return oldTab;
@@ -481,12 +500,11 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
                     oldCap >= DEFAULT_INITIAL_CAPACITY)
                 newThr = oldThr << 1; // double threshold
         }
-        else if (oldThr > 0) // initial capacity was placed in threshold
+        else if (oldThr > 0)
+            //带参数构建的HashMap 会使用tableSizeFor方法计算的容量
             newCap = oldThr;
-        else {               // zero initial threshold signifies using defaults
-            /**
-             * newCap初始化大小 16
-             */
+        else {
+            //newCap初始化大小 16
             newCap = DEFAULT_INITIAL_CAPACITY;
             /**
              * newThr初始化加载因子 0.75 * 16=12
@@ -495,6 +513,7 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
             newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
         }
         if (newThr == 0) {
+            //带参数构建的HashMap  需要计算得出阀值
             float ft = (float)newCap * loadFactor;
             newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
                     (int)ft : Integer.MAX_VALUE);
@@ -503,21 +522,30 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
         @SuppressWarnings({"rawtypes","unchecked"})
         NodeDemo<K,V>[] newTab = (NodeDemo<K,V>[])new NodeDemo[newCap];
         table = newTab;
+        //如果调用方法时已存在map,则扩大一倍容量，并且从新散列放入 新的map容器中
         if (oldTab != null) {
             for (int j = 0; j < oldCap; ++j) {
                 NodeDemo<K,V> e;
                 if ((e = oldTab[j]) != null) {
                     oldTab[j] = null;
                     if (e.next == null)
+                        // 将该值散列到新数组中
                         newTab[e.hash & (newCap - 1)] = e;
                     else if (e instanceof TreeNodeDemo)
+                        // 调用红黑树 的split 方法，传入当前对象，新数组，当前下标，老数组的容量，目的是将树的数据重新散列到数组中
                         ((TreeNodeDemo<K,V>)e).split(this, newTab, j, oldCap);
-                    else { // preserve order
+                    else {
+                        // 节点是链表 重新散列
                         NodeDemo<K,V> loHead = null, loTail = null;
                         NodeDemo<K,V> hiHead = null, hiTail = null;
                         NodeDemo<K,V> next;
                         do {
                             next = e.next;
+                            /**
+                             * 我们计算节点再map数组中的位置方式是 (n - 1) & hash
+                             *  牢记a % b == (b-1) & a ,当b是2的指数时，等式成立。
+                             *
+                             */
                             if ((e.hash & oldCap) == 0) {
                                 if (loTail == null)
                                     loHead = e;

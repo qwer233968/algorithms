@@ -1,6 +1,6 @@
 package map;
 
-import java.util.HashMap;
+import java.io.File;
 
 public class MapTest {
 

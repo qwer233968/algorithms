@@ -542,7 +542,6 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
                         do {
                             next = e.next;
                             /**
-                             * ，那么该于元素的下标位置也就不变。
                              * 假设 --
                              *      map原大小=16 现扩充到32
                              *      hash = ‭001101100100010010100100‬
@@ -557,7 +556,7 @@ public class HashMapDemo<K,V> extends AbstractMapDemo<K,V> implements Map<K,V>, 
                              *                     1111 = 15
                              *                    11111 = 31
                              *  最终结果都是 4
-                             *  所以当确定了右起第五位肯定也是0的情况下，扩充容量后  下标肯定不变
+                             *  所以当确定了右起第五位肯定也是0的情况下，扩充容量后下标肯定不变
                              */
                             if ((e.hash & oldCap) == 0) {
                                 if (loTail == null)

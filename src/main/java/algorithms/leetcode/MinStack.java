@@ -5,23 +5,29 @@ public class MinStack {
     int[] stack;
     int start = 0;
     int INIT_LEN = 8;
-    int sortStack[];
-    boolean isSort = false;
+    int minStack[];
     /** initialize your data structure here. */
     public MinStack() {
         stack = new int[INIT_LEN];
+        minStack = new int[INIT_LEN];
     }
 
     public void push(int x) {
         stack[start] = x;
+        if (start == 0) minStack[start] = x;
+        else{
+            if (minStack[start - 1] > x){
+                minStack[start] = x;
+            }else{
+                minStack[start] = minStack[start - 1];
+            }
+        }
         start++;
-        isSort = false;
         if (start == stack.length) resize();
     }
 
     public void pop() {
         if (start > 0) start--;
-        isSort = false;
     }
 
     public int top() {
@@ -29,35 +35,19 @@ public class MinStack {
     }
 
     public int getMin() {
-        if (isSort) return sortStack[start-1];
-        sortStack();
-        return sortStack[start-1];
-    }
-
-    public void sortStack(){
-        sortStack = new int[start];
-        for (int i=0;i<start;i++){
-            sortStack[i] = stack[i];
-        }
-        for (int i=0;i<start-1;i++){
-            for (int j=0;j<start-1-i;j++){
-                if (sortStack[j]<sortStack[j+1]){
-                    int temp = sortStack[j];
-                    sortStack[j] = sortStack[j+1];
-                    sortStack[j+1] = temp;
-                }
-            }
-        }
-        isSort = true;
+        return minStack[start-1];
     }
 
     public void resize(){
         int len = start * 2;
         int[] newStack = new int[len];
+        int[] newMinStack = new int[len];
         for (int i=0;i<start;i++){
             newStack[i]=stack[i];
+            newMinStack[i]=minStack[i];
         }
         stack = newStack;
+        minStack = newMinStack;
     }
 
     public static void main(String[] args) {

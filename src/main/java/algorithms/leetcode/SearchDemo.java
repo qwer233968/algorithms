@@ -57,9 +57,26 @@ public class SearchDemo {
         return index;
     }
 
+    /**
+     * 查询数组中只出现1次的数字
+     * int[] test = {1,2,1,3,3};
+     * @param nums
+     * @return 2
+     */
+    public static int singleNumber(int[] nums) {
+        int res = 0;
+        for (int i=0;i<nums.length;i++){
+            res ^= nums[i];
+        }
+        return res;
+    }
+
     public static void main(String[] args) {
-        MountainArray a = new MountainArray();
+       /* MountainArray a = new MountainArray();
         int index = findInMountainArray(-1,a);
-        System.out.println(index);
+        System.out.println(index);*/
+       int[] test = {1,2,1,3,3};
+        int t =singleNumber(test);
+        System.out.println(t);
     }
 }

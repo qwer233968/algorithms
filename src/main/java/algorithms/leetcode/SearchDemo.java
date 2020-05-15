@@ -80,19 +80,13 @@ public class SearchDemo {
      * @return
      */
     public static int subarraySum(int[] nums, int k) {
-        if (nums.length == 0) return 0;
-        int pos = 0;
         int len = nums.length;
-        int sum = 0;
         int count = 0;
         for (int i=0;i<len;i++){
-            if (nums[i] == k && pos > 0) count++;
-            sum += nums[i];
-            if (sum == k) count++;
-            int innerSum = sum;
-            for (int j=0;j<i;j++){
-                innerSum -= nums[j];
-                if (innerSum == k) count++;
+            int sum = 0;
+            for (int j=i;j>=0;j--){
+                sum += nums[j];
+                if (sum == k) count++;
             }
         }
         return count;
@@ -105,8 +99,8 @@ public class SearchDemo {
        /*int[] test = {1,2,1,3,3};
         int t =singleNumber(test);
         System.out.println(t);*/
-        int[] test = {1,1,1,-2,1};
-        int t = subarraySum(test, 0);
+        int[] test = {1,1,1};
+        int t = subarraySum(test, 2);
         System.out.println(t);
     }
 }

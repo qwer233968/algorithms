@@ -71,12 +71,42 @@ public class SearchDemo {
         return res;
     }
 
+    /**
+     * 给定一个整数数组和一个整数 k，你需要找到该数组中和为 k 的连续的子数组的个数。
+     * 输入:nums = [1,1,1], k = 2
+     * 输出: 2 , [1,1] 与 [1,1] 为两种不同的情况。
+     * @param nums
+     * @param k
+     * @return
+     */
+    public static int subarraySum(int[] nums, int k) {
+        if (nums.length == 0) return 0;
+        int pos = 0;
+        int len = nums.length;
+        int sum = 0;
+        int count = 0;
+        for (int i=0;i<len;i++){
+            if (nums[i] == k && pos > 0) count++;
+            sum += nums[i];
+            if (sum == k) count++;
+            int innerSum = sum;
+            for (int j=0;j<i;j++){
+                innerSum -= nums[j];
+                if (innerSum == k) count++;
+            }
+        }
+        return count;
+    }
+
     public static void main(String[] args) {
        /* MountainArray a = new MountainArray();
         int index = findInMountainArray(-1,a);
         System.out.println(index);*/
-       int[] test = {1,2,1,3,3};
+       /*int[] test = {1,2,1,3,3};
         int t =singleNumber(test);
+        System.out.println(t);*/
+        int[] test = {1,1,1,-2,1};
+        int t = subarraySum(test, 0);
         System.out.println(t);
     }
 }

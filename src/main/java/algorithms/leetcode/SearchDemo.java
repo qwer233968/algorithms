@@ -92,6 +92,30 @@ public class SearchDemo {
         return count;
     }
 
+    /**
+     * 给你一个整数数组 nums ，请你找出数组中乘积最大的连续子数组（该子数组中至少包含一个数字）
+     * 并返回该子数组所对应的乘积。
+     * 示例 1:
+     *
+     * 输入: [2,3,-2,4]
+     * 输出: 6
+     * 解释: 子数组 [2,3] 有最大乘积 6。
+     * @param nums
+     * @return
+     */
+    public static int maxProduct(int[] nums) {
+        int len = nums.length;
+        int res = nums[0];
+        for (int i=0;i<len;i++){
+            int multiply = 1;
+            for (int j=i;j>=0;j--){
+                multiply *= nums[j];
+                if (multiply > res) res = multiply;
+            }
+        }
+        return res;
+    }
+
     public static void main(String[] args) {
        /* MountainArray a = new MountainArray();
         int index = findInMountainArray(-1,a);
@@ -99,8 +123,11 @@ public class SearchDemo {
        /*int[] test = {1,2,1,3,3};
         int t =singleNumber(test);
         System.out.println(t);*/
-        int[] test = {1,1,1};
+        /*int[] test = {1,1,1};
         int t = subarraySum(test, 2);
+        System.out.println(t);*/
+        int[] test = {-2,0,-1};
+        int t = maxProduct(test);
         System.out.println(t);
     }
 }

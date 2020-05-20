@@ -1,5 +1,7 @@
 package algorithms.leetcode;
 
+import java.util.Arrays;
+
 public class SearchDemo {
 
     /**
@@ -116,6 +118,53 @@ public class SearchDemo {
         return res;
     }
 
+    /**
+     * 给你一个字符串 s ，请你返回满足以下条件的最长子字符串的长度：
+     *  每个元音字母，即 'a'，'e'，'i'，'o'，'u' ，在子字符串中都恰好出现了偶数次。
+     * @param s
+     * @return
+     */
+    public int findTheLongestSubstring(String s) {
+        int n = s.length();
+        /**
+         * 以2进制表示 5个元音字母出现的奇偶性 00000 ~ 11111
+         * 正好可以用数组最大值 1 << 5=11111表示
+         */
+        int[] pos = new int[1 << 5];
+        Arrays.fill(pos, -1);
+        int ans = 0, status = 0;
+        pos[0] = 0;
+        for (int i = 0; i < n; i++) {
+            char ch = s.charAt(i);
+            /**
+             * ^ 运算 同0异1 可以表示出现的奇偶
+             */
+            if (ch == 'a') {
+                status ^= (1 << 0);
+            } else if (ch == 'e') {
+                status ^= (1 << 1);
+            } else if (ch == 'i') {
+                status ^= (1 << 2);
+            } else if (ch == 'o') {
+                status ^= (1 << 3);
+            } else if (ch == 'u') {
+                status ^= (1 << 4);
+            }
+            /**
+             * 如果一个元音字母出现的次数为偶数，则对应的2进制位一定=0
+             * 如果一个元音字母出现的次数为奇数，则对应的2进制位一定=1
+             * pos[0]=0
+             *
+             */
+            if (pos[status] >= 0) {
+                ans = Math.max(ans, i + 1 - pos[status]);
+            } else {
+                pos[status] = i + 1;
+            }
+        }
+        return ans;
+    }
+
     public static void main(String[] args) {
        /* MountainArray a = new MountainArray();
         int index = findInMountainArray(-1,a);
@@ -126,8 +175,11 @@ public class SearchDemo {
         /*int[] test = {1,1,1};
         int t = subarraySum(test, 2);
         System.out.println(t);*/
-        int[] test = {-2,0,-1};
+        /*int[] test = {-2,0,-1};
         int t = maxProduct(test);
-        System.out.println(t);
+        System.out.println(t);*/
+        SearchDemo demo = new SearchDemo();
+        int len = demo.findTheLongestSubstring("eleetminicoworoep");
+        System.out.println(len);
     }
 }

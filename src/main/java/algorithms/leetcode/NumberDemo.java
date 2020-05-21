@@ -74,10 +74,51 @@ public class NumberDemo {
         return true;
     }
 
+    /**
+     * 给定一个字符串 s，找到 s 中最长的回文子串。你可以假设 s 的最大长度为 1000。
+     * @param s
+     * @return
+     */
+    public String longestPalindrome(String s) {
+        if (s.length() == 0) return "";
+        int start = 0;
+        int end = 0;
+        for (int i=0;i<s.length();i++){
+            //位置i开始查询  奇数位
+            int len1 = searchPalindrome(s,i,i);
+            //位置i，i+1开始查询  偶数位
+            int len2 = searchPalindrome(s,i,i+1);
+            int len = Math.max(len1,len2);
+            if (len > end-start){
+                //如果len=奇数则-1不影响结果
+                //如果len=偶数,必须-1,因为是从位置i，i+1开始查询的,多了1位数
+                start = i - (len-1)/2;
+                end = i + len/2;
+            }
+        }
+        return s.substring(start, end+1);
+    }
+
+    /**
+     * 以left，right为起点，向外围扩散查询是否相等
+     * 不相等则跳出循环，因不相等的时候已经向外围扩了1圈，所以需要-1
+     */
+    public int searchPalindrome(String s, int left, int right){
+        int L=left, R=right;
+        while (L >= 0 && R < s.length() && s.charAt(L) == s.charAt(R)){
+            L--;
+            R++;
+        }
+        return R - L - 1;
+    }
+
     public static void main(String[] args) {
         /*boolean is = isHappy(19);
         System.out.println(is);*/
-        boolean is = validPalindrome("abc");
-        System.out.println(is);
+        /*boolean is = validPalindrome("abc");
+        System.out.println(is);*/
+        NumberDemo demo = new NumberDemo();
+        String s = demo.longestPalindrome("babaabad");
+        System.out.println(s);
     }
 }

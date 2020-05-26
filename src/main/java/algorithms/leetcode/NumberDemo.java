@@ -1,6 +1,8 @@
 package algorithms.leetcode;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class NumberDemo {
@@ -112,13 +114,48 @@ public class NumberDemo {
         return R - L - 1;
     }
 
+    /**
+     * 给定一个包含 n + 1 个整数的数组 nums，其数字都在 1 到 n 之间（包括 1 和 n），可知至少存在一个重复的整数。假设只有一个重复的整数，找出这个重复的数。
+     * 输入: [1,3,4,2,2]
+     * 输出: 2
+     * 判定是否有环: 假设 t 和 h 同时从起点 S 出发, t 的步长是一步, h 的步长是两步, 如果有环, 则 t 与 h 一定会在环上一点相遇, 记为 M.
+     * 1 - 3
+     * 3 - 4
+     * 2 - 4
+     * 4 - 4
+     *
+     * 如果t从起点出发，h从相遇位置出发，每次都移动一步，则t走了 a 步之后到达环的入口，
+     * 快指针在环里走了 c 步，由于从相遇位置继续走 c 步即可回到环的入口，因此h也到达环的入口。
+     * 两个指针在环的入口相遇，相遇点就是答案
+     * 1  2
+     * 3  4
+     * 2  2
+     * @param nums
+     * @return
+     */
+    public int findDuplicate(int[] nums) {
+        int slow = 0, fast = 0;
+        do {
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+        } while (slow != fast);
+        slow = 0;
+        while (slow != fast) {
+            slow = nums[slow];
+            fast = nums[fast];
+        }
+        return slow;
+    }
+
     public static void main(String[] args) {
         /*boolean is = isHappy(19);
         System.out.println(is);*/
         /*boolean is = validPalindrome("abc");
         System.out.println(is);*/
         NumberDemo demo = new NumberDemo();
-        String s = demo.longestPalindrome("babaabad");
-        System.out.println(s);
+        /*String s = demo.longestPalindrome("babaabad");
+        System.out.println(s);*/
+        int res = demo.findDuplicate(new int[]{3,1,4,2,3});
+        System.out.println(res);
     }
 }

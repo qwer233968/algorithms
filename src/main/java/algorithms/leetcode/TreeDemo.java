@@ -76,6 +76,40 @@ public class TreeDemo {
         return root;
     }
 
+    public void mergeFor(TreeNode root, TreeNode t){
+        root.val += t.val;
+        if(t.left != null){
+            if (root.left == null){
+                TreeNode n = new TreeNode(0);
+                root.left = n;
+            }
+            mergeFor(root.left,t.left);
+        }
+        if(t.right != null){
+            if (root.right == null){
+                TreeNode n = new TreeNode(0);
+                root.right = n;
+            }
+            mergeFor(root.right,t.right);
+        }
+    }
+
+    public TreeNode mergeTrees() {
+        TreeNode root = new TreeNode(0);
+        TreeNode t1 = new TreeNode(1);
+        t1.left = new TreeNode(3);
+        t1.right = new TreeNode(2);
+        t1.left.left = new TreeNode(5);
+        if (t1 != null) mergeFor(root, t1);
+        TreeNode t2 = new TreeNode(2);
+        t2.left = new TreeNode(1);
+        t2.right = new TreeNode(3);
+        t2.left.right = new TreeNode(4);
+        t2.right.right = new TreeNode(7);
+        if (t2 != null) mergeFor(root, t2);
+        return root;
+    }
+
     public static void main(String[] args) {
         /*TreeNode root = new TreeNode(3);
         root.left = new TreeNode(9);
@@ -84,10 +118,11 @@ public class TreeDemo {
         root.right.right = new TreeNode(7);
         levelOrder(root);*/
         TreeDemo demo = new TreeDemo();
-        int[] pre = {3,9,20,15,7};
+        /*int[] pre = {3,9,20,15,7};
         int[] in = {9,3,15,20,7};
         TreeNode t = demo.buildTree(pre, in);
-        System.out.println(t);
+        System.out.println(t);*/
+        demo.mergeTrees();
     }
 
     public static class TreeNode {
